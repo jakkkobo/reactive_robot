@@ -215,8 +215,8 @@ void lineCallback(const sensor_msgs::LaserScan::ConstPtr& line_msg)
     //print the angle to the middle point in degrees
     ROS_INFO("Angle to middle point: %f", angle_to_middle_point*180/M_PI);
     
-    //check if angle is bigger or equal to 85 degrees and stop robot
-    if(angle_to_middle_point >= 85*M_PI/180)
+    //check if angle is bigger or equal to 80 degrees and stop robot
+    if(angle_to_middle_point >= 80*M_PI/180)
     {
         stop_state = true;
         ROS_INFO("End goal");
