@@ -25,7 +25,9 @@ ros::Subscriber sub_line;
 bool corrected = false;
 float max_range = 2.0;
 bool stop_state = false;
-float side = -1.0;
+float side = 1.0;
+float minimum_distance_to_wall = 0.7;
+double Kp_linear = 0.3; //0.1
 
 
 //struct for the x and y data of the curve fit
@@ -188,6 +190,7 @@ bool heading_correction(std::vector<float> work_part)
 
 void lineCallback(const sensor_msgs::LaserScan::ConstPtr& line_msg)
 {
+    Kp_linear = 0.1;
     //print end point of the line
     double middle_point = line_msg->ranges.size()/2;
     ROS_INFO("End point of the line: %f", line_msg->ranges[middle_point]);
@@ -420,18 +423,18 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         sleep(1);
         //reset ros node
         system("rosnode kill /follow_wall");
-        sleep(0.5);
+        sleep(0.1);
         system("rosrun  turtlebot3_control follow_wall");
         return;
     }
     else
     {
         // P controller to correct the error angle and compute the angular velocity
-        double Kp = 1.7;
-        double Kp_wall = 0.3;
+        double Kp = 4.0; //1.5
+        double Kp_wall = 0.2; //0.2
 
         //mantain minimum distance to wall
-        if(distance_to_wall < 0.5)
+        if(distance_to_wall < minimum_distance_to_wall)
         {
             Kp_wall = -Kp_wall;
         }
@@ -445,8 +448,7 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         //print the line_work_part length
         ROS_INFO("Line work_part length: %f", line_work_part_length);
 
-        //compute the linear velocity with a P controller to the length of the line_work_part
-        double Kp_linear = 0.3;
+        //compute the linear velocity with a P controller to the length of the line_work_par
         double linear_velocity = Kp_linear;
         // double linear_velocity = Kp_linear*line_work_part_length;
 

@@ -4,6 +4,6 @@
     <!-- <node type="rviz" name="rviz" pkg="rviz" args="-d /home/jacob/catkin_ws/src/turtlebot3_control/rviz/loz.rviz" /> -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebot3_control)/rviz/turtlebot3.rviz"/>
     <node name="follow_wall" pkg="turtlebot3_control" type="follow_wall" output="screen"/>
-    <!-- <node name="line_fitting" pkg="turtlebot3_control" type="line_fitting" output="screen"/> -->
+    <node name="line_fitting" pkg="turtlebot3_control" type="line_fitting" output="screen"/>
     <node name="respawn_turtlebot3" pkg="turtlebot3_control" type="respawn.py" output="screen"/>
 </launch>

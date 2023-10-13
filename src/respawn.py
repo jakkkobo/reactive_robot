@@ -5,6 +5,7 @@ import random
 from std_msgs.msg import Bool
 from gazebo_msgs.srv import SpawnModel, DeleteModel
 from geometry_msgs.msg import Pose
+import time
 
 
 def callback(msg):
@@ -19,7 +20,10 @@ def callback(msg):
         model_name = 'turtlebot3_burger'
         delete_model(model_name)
         rospy.loginfo('Robot deleted')
-
+        
+        #wait for 2 seconds
+        time.sleep(2)
+        
         #spawn the robot
         rospy.wait_for_service('/gazebo/spawn_urdf_model')
         model_xml = rospy.get_param('robot_description')
