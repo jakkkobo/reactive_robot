@@ -9,6 +9,10 @@
 #include <vector>
 #include <Eigen/Dense>
 
+#include <dynamic_reconfigure/server.h>
+#include <dynamic_tt/RobotMissionConfig.h>
+
+
 using namespace Eigen;
 
 
@@ -25,9 +29,15 @@ ros::Subscriber sub_line;
 bool corrected = false;
 float max_range = 2.0;
 bool stop_state = false;
+bool end_state = false;
 float side = 1.0;
 float minimum_distance_to_wall = 0.7;
+// P controller to correct the error angle and compute the angular velocity
+double Kp_angular = 4.0; //1.5
+double Kp_wall = 0.2; //0.2
+// P controller to compute the linear velocity
 double Kp_linear = 0.3; //0.1
+double Kp_wall_linear = 0.1; //0.1
 
 
 //struct for the x and y data of the curve fit
@@ -37,6 +47,44 @@ struct curve_fit_data
     std::vector<double> y_data;
 };
 
+
+void dynamic_callback(dynamic_tt::RobotMissionConfig &config, uint32_t level)
+{
+    //print the config parameters
+    ROS_INFO("max_range: %f", config.max_laser_range_to_wall);
+    ROS_INFO("side: %f", config.map_side);
+    ROS_INFO("minimum_distance_to_wall: %f", config.minimum_distance_to_wall);
+    ROS_INFO("Kp_linear: %f", config.kp_linear);
+    ROS_INFO("Stop: %d", config.STOP);
+
+    // stop simulation
+    if(config.STOP)
+        stop_state = true;
+    else
+        stop_state = false;
+
+    //set the max_range
+    max_range = config.max_laser_range_to_wall;
+    //set the side
+    if (side != config.map_side)
+    {
+        corrected = false;
+        side = config.map_side;
+    }
+    
+    //set the minimum_distance_to_wall
+    minimum_distance_to_wall = config.minimum_distance_to_wall;
+    //set the Kp_linear
+    Kp_linear = config.kp_linear;
+    //set the Kp_angular
+    Kp_angular = config.kp_angular;
+    //set the Kp_wall
+    Kp_wall = config.kp_wall_distance;
+    //set the Kp_wall_linear
+    Kp_wall_linear = config.kp_wall_linear;
+
+    return;
+}
 
 curve_fit_data curve_fit(std::vector<float> x, std::vector<float> y)
 {
@@ -218,7 +266,7 @@ void lineCallback(const sensor_msgs::LaserScan::ConstPtr& line_msg)
     //check if angle is bigger or equal to 80 degrees and stop robot
     if(angle_to_middle_point >= 80*M_PI/180)
     {
-        stop_state = true;
+        end_state = true;
         ROS_INFO("End goal");
         geometry_msgs::Twist msg;
         msg.linear.x = 0.0;
@@ -290,6 +338,16 @@ void publish_scans(const sensor_msgs::LaserScan::ConstPtr& laser_msg, std::vecto
 
 void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
 {
+    //check if stop state is true
+    if(stop_state)
+    {
+        geometry_msgs::Twist msg;
+        msg.linear.x = 0.0;
+        msg.angular.z = 0.0;
+        pub.publish(msg);
+        return;
+    }
+    
     //check if the laser scan data is empty or all inf or nan
     if(laser_msg->ranges.empty())
     {
@@ -414,7 +472,7 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
     ROS_INFO("Distance to wall: %f", distance_to_wall);
 
 
-    if(stop_state)
+    if(end_state)
     {
         geometry_msgs::Twist msg;
         msg.linear.x = 0.0;
@@ -429,10 +487,6 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
     }
     else
     {
-        // P controller to correct the error angle and compute the angular velocity
-        double Kp = 4.0; //1.5
-        double Kp_wall = 0.2; //0.2
-
         //mantain minimum distance to wall
         if(distance_to_wall < minimum_distance_to_wall)
         {
@@ -440,7 +494,7 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         }
         
         //compute the angular velocity
-        double angular_velocity = Kp*error_angle + Kp_wall*distance_to_wall*side;
+        double angular_velocity = Kp_angular*error_angle + Kp_wall*distance_to_wall*side;
         
         // //calculate the line_work_part length
         double line_work_part_length = sqrt(pow(line_work_part.x_data[line_work_part.x_data.size()-1] - line_work_part.x_data[0], 2) + pow(line_work_part.y_data[line_work_part.y_data.size()-1] - line_work_part.y_data[0], 2));
@@ -449,7 +503,7 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         ROS_INFO("Line work_part length: %f", line_work_part_length);
 
         //compute the linear velocity with a P controller to the length of the line_work_par
-        double linear_velocity = Kp_linear;
+        double linear_velocity = Kp_linear - Kp_wall_linear/distance_to_wall;
         // double linear_velocity = Kp_linear*line_work_part_length;
 
 
@@ -478,6 +532,12 @@ int main(int argc, char** argv)
 
     pub_line = nh.advertise<visualization_msgs::Marker>("/wall_tracking/line", 1);
     pub_end = nh.advertise<std_msgs::Bool>("/end_goal", 1);
+
+    //init dynamic reconfigure
+    dynamic_reconfigure::Server<dynamic_tt::RobotMissionConfig> server;
+    dynamic_reconfigure::Server<dynamic_tt::RobotMissionConfig>::CallbackType f;
+    f = boost::bind(&dynamic_callback, _1, _2);
+    server.setCallback(f);
 
     ros::spin();
 
