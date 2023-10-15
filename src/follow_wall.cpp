@@ -37,7 +37,7 @@ double Kp_angular = 4.0; //1.5
 double Kp_wall = 0.2; //0.2
 // P controller to compute the linear velocity
 double Kp_linear = 0.3; //0.1
-double Kp_wall_linear = 0.1; //0.1
+double Kp_wall_linear = 0.05; //0.1
 
 
 //struct for the x and y data of the curve fit

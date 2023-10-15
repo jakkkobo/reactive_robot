@@ -14,7 +14,7 @@ ros::Subscriber sub;
 double minLineLength = 1.05;  // Minimum line length threshold
 double maxLineLength = 1.15;  // Maximum line length threshold
 double maxDeviation = 0.3;  // Maximum allowed deviation from a straight line
-double maxNearestNeighborDistance = 0.2;  // Maximum pairwise point distance threshold
+double maxNearestNeighborDistance = 0.2; //0.2 // Maximum pairwise point distance threshold
 
 
 bool arePointsOnStraightLine(const pcl::PointCloud<pcl::PointXYZ>::Ptr& cloud) {
