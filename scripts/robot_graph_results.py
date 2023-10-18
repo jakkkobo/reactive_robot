@@ -2,7 +2,7 @@
 
 import rospy
 import numpy as np
-import math
+import math, time
 
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
@@ -13,6 +13,9 @@ from matplotlib.animation import FuncAnimation
 
 
 class sentinel_graph_results:
+
+    respawn = True
+    update = True
 
     def __init__(self):
 
@@ -38,6 +41,8 @@ class sentinel_graph_results:
         self.ax4 = fig.add_subplot(324)
         self.ax5 = fig.add_subplot(325)
         self.ax6 = fig.add_subplot(326)
+        # self.ax7 = fig.add_subplot(427)
+        # self.ax8 = fig.add_subplot(428)
 
         animation = FuncAnimation(fig, self.update_graph, frames = None, interval=10)
 
@@ -52,6 +57,13 @@ class sentinel_graph_results:
 
 
     def pose_callback(self, msg):
+
+        #verify if robot has stopped moving 
+        if msg.twist.twist.linear.x < 0.1 and msg.twist.twist.angular.z < 0.2:
+            self.respawn = False
+        else:
+            self.respawn = True
+    
 
         if self.nr_of_poses == 0:
 
@@ -96,13 +108,18 @@ class sentinel_graph_results:
             
             if msg.data == True:
 
+                while (self.respawn == False):
+                    print("Waiting for respawn...")
+                    self.update = False
+
+
                 #reset the graph
                 self.robot_poses = []
                 self.robot_theta = []
                 self.robot_velocities = []
                 self.robot_accelerations = []
                 self.range = 0.01
-
+  
                 #clear the graph
                 self.ax.cla()
                 self.ax2.cla()
@@ -110,6 +127,7 @@ class sentinel_graph_results:
                 self.ax4.cla()
                 self.ax5.cla()
                 self.ax6.cla()
+                
 
     
                 # print("Saving the graph...")
@@ -117,6 +135,8 @@ class sentinel_graph_results:
                 # plt.savefig('robot_graph_results' + str(self.counter) + '.png', dpi=1200, bbox_inches='tight')
                 # self.counter += 1
                 # print("Graph saved!")
+
+                self.update = True
             
             
 
@@ -124,7 +144,8 @@ class sentinel_graph_results:
 
     def update_graph(self, frame):
 
-        if self.robot_poses != []:
+        # if the robot_poses as more than 1 pose
+        if self.robot_poses != [] and self.robot_theta != [] and self.robot_velocities != [] and self.robot_accelerations != [] and self.update == True:
             
             self.ax.cla()
 
@@ -150,10 +171,6 @@ class sentinel_graph_results:
             self.ax2.set_theta_offset(np.pi/2.0)
             self.ax2.plot(theta, r, linestyle='-', label='robot_heading', color='red')
 
-            # self.ax2.set_rmax(2)
-            # self.ax2.set_rticks(np.arange(0, 2, 0.01))  # Less radial ticks
-            # self.ax2.set_rlabel_position(-22.5)  # Move radial labels away from plotted line
-           
             self.ax2.set_title('Orientation')
             self.ax.grid(True)
             self.ax2.set_rlabel_position(self.ax2.get_rmax()+0.5)
