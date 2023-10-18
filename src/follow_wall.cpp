@@ -338,6 +338,21 @@ void publish_scans(const sensor_msgs::LaserScan::ConstPtr& laser_msg, std::vecto
 
 void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
 {
+    //calculate the loop time
+    static ros::Time last_time = ros::Time::now();
+    ros::Time current_time = ros::Time::now();
+    double loop_time = (current_time - last_time).toSec();
+    last_time = current_time;
+    ROS_INFO("Loop time: %f", loop_time);
+
+    //calculate the average till the node is killed
+    static double average = 0.0;
+    static int count = 0;
+    average = (average*count + loop_time)/(count + 1);
+    count++;
+    ROS_INFO("Average loop time: %f", average);
+    
+
     //check if stop state is true
     if(stop_state)
     {
