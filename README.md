@@ -27,8 +27,8 @@ cd catkin_ws
 catkin_make
 ````
 
-### Files struture
-
+### Files structure
+````
 ├── CMakeLists.txt
 ├── cfg
 │   └── RobotMission.cfg
@@ -56,7 +56,7 @@ catkin_make
     ├── robot_graph_results_2.txt
     ├── robot_graph_results_outside.txt
     └── robot_graph_results_outside_2.txt
-
+````
 
 ### Launch
 
