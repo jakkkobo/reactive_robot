@@ -25,7 +25,6 @@ Paste turtlebot3_control in src folder and compile:
 ````
 cd catkin_ws
 catkin_make
-
 ````
 
 ### Files struture
