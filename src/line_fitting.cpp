@@ -130,54 +130,6 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         ROS_INFO("Line length is not within the specified range (length=%.3f). Skipping.", lineLength);
         return;
     }
-
-
-    // Check if the extracted line is straight
-    // double deviation = 0.0;
-    // for (size_t i = 0; i < extracted_cloud->size(); ++i)
-    // {
-    //     double x = extracted_cloud->points[i].x;
-    //     double y = extracted_cloud->points[i].y;
-    //     double distance = fabs(coefficients->values[0] * x + coefficients->values[1] * y + coefficients->values[2]) /
-    //                         sqrt(pow(coefficients->values[0], 2) + pow(coefficients->values[1], 2));
-
-    //     if (distance > deviation)
-    //     {
-    //         deviation = distance;
-    //     }
-    // }
-    // //print deviation
-    // ROS_INFO("Deviation: %f", deviation);
-
-    // if (deviation > maxDeviation)
-    // {
-    //     ROS_INFO("Detected line is not straight (deviation=%.3f). Skipping.", deviation);
-    //     return;
-    // }
-
-    // Check if the extracted line is straight or curved
-    // double maxDistanceToLine = 0.0;
-    // for (size_t i = 0; i < extracted_cloud->size(); ++i)
-    // {
-    //     double x = extracted_cloud->points[i].x;
-    //     double y = extracted_cloud->points[i].y;
-    //     double distanceToLine = fabs(coefficients->values[0] * x + coefficients->values[1] * y + coefficients->values[2]) /
-    //                             sqrt(pow(coefficients->values[0], 2) + pow(coefficients->values[1], 2));
-
-    //     if (distanceToLine > maxDistanceToLine)
-    //     {
-    //         maxDistanceToLine = distanceToLine;
-    //     }
-    // }
-
-    // //print max distance to line
-    // ROS_INFO("Max distance to line: %f", maxDistanceToLine);
-
-    // if (maxDistanceToLine < maxDeviation)
-    // {
-    //     ROS_INFO("Detected line is not straight (max deviation=%.3f). Skipping.", maxDistanceToLine);
-    //     return;
-    // }
     
     //check if the points are on a straight line
     if(!arePointsOnStraightLine(extracted_cloud))

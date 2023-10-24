@@ -352,39 +352,39 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
     last_time = current_time;
     ROS_INFO("Loop time: %f", loop_time);
 
-
-    //calculate the average, max and min error angle, distance to wall and loop time
-    static double average_error_angle = 0.0;
-    static double max_error_angle = 0.0;
-    static double min_error_angle = 0.0;
-    static double average_distance_to_wall = 0.0;
-    static double max_distance_to_wall = 0.0;
-    static double min_distance_to_wall = 0.0;
-    static double average_loop_time = 0.0;
-    static double max_loop_time = 0.0;
-    static double min_loop_time = 0.0;
+    //DEBUG
+    // //calculate the average, max and min error angle, distance to wall and loop time
+    // static double average_error_angle = 0.0;
+    // static double max_error_angle = 0.0;
+    // static double min_error_angle = 0.0;
+    // static double average_distance_to_wall = 0.0;
+    // static double max_distance_to_wall = 0.0;
+    // static double min_distance_to_wall = 0.0;
+    // static double average_loop_time = 0.0;
+    // static double max_loop_time = 0.0;
+    // static double min_loop_time = 0.0;
     
-    average_error_angle = (average_error_angle*count + abs(error_angle))/(count + 1);
-    average_distance_to_wall = (average_distance_to_wall*count + distance_to_wall)/(count + 1);
-    average_loop_time = (average_loop_time*count + loop_time)/(count + 1);
-    if(abs(error_angle) > max_error_angle)
-        max_error_angle = abs(error_angle);
-    if(abs(error_angle) < min_error_angle && abs(error_angle) != 0.000000)
-        min_error_angle = abs(error_angle);
-    if(distance_to_wall > max_distance_to_wall)
-        max_distance_to_wall = distance_to_wall;
-    if(distance_to_wall < min_distance_to_wall && distance_to_wall != 0.000000)
-        min_distance_to_wall = distance_to_wall;
-    if(loop_time > max_loop_time)
-        max_loop_time = loop_time;
-    if(loop_time < min_loop_time && loop_time != 0.000000)   
-        min_loop_time = loop_time;
-    count++;
+    // average_error_angle = (average_error_angle*count + abs(error_angle))/(count + 1);
+    // average_distance_to_wall = (average_distance_to_wall*count + distance_to_wall)/(count + 1);
+    // average_loop_time = (average_loop_time*count + loop_time)/(count + 1);
+    // if(abs(error_angle) > max_error_angle)
+    //     max_error_angle = abs(error_angle);
+    // if(abs(error_angle) < min_error_angle && abs(error_angle) != 0.000000)
+    //     min_error_angle = abs(error_angle);
+    // if(distance_to_wall > max_distance_to_wall)
+    //     max_distance_to_wall = distance_to_wall;
+    // if(distance_to_wall < min_distance_to_wall && distance_to_wall != 0.000000)
+    //     min_distance_to_wall = distance_to_wall;
+    // if(loop_time > max_loop_time)
+    //     max_loop_time = loop_time;
+    // if(loop_time < min_loop_time && loop_time != 0.000000)   
+    //     min_loop_time = loop_time;
+    // count++;
 
-    //save the error angle and distance to wall in a file
-    fp = fopen("/home/jacob/catkin_ws/src/turtlebot3_control/src/data.txt", "a");
-    fprintf(fp, "%f %f\n", error_angle, distance_to_wall);
-    fclose(fp);
+    // //save the error angle and distance to wall in a file
+    // fp = fopen("/home/jacob/catkin_ws/src/turtlebot3_control/src/data.txt", "a");
+    // fprintf(fp, "%f %f\n", error_angle, distance_to_wall);
+    // fclose(fp);
     
 
     //check if stop state is true
@@ -528,15 +528,16 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         msg.angular.z = 0.0;
         pub.publish(msg);
 
-        ROS_INFO("Average error angle: %f", average_error_angle);
-        ROS_INFO("Max error angle: %f", max_error_angle);
-        ROS_INFO("Min error angle: %f", min_error_angle);
-        ROS_INFO("Average distance to wall: %f", average_distance_to_wall);
-        ROS_INFO("Max distance to wall: %f", max_distance_to_wall);
-        ROS_INFO("Min distance to wall: %f", min_distance_to_wall);
-        ROS_INFO("Average loop time: %f", average_loop_time);
-        ROS_INFO("Max loop time: %f", max_loop_time);
-        ROS_INFO("Min loop time: %f", min_loop_time);
+        //DEBUG
+        // ROS_INFO("Average error angle: %f", average_error_angle);
+        // ROS_INFO("Max error angle: %f", max_error_angle);
+        // ROS_INFO("Min error angle: %f", min_error_angle);
+        // ROS_INFO("Average distance to wall: %f", average_distance_to_wall);
+        // ROS_INFO("Max distance to wall: %f", max_distance_to_wall);
+        // ROS_INFO("Min distance to wall: %f", min_distance_to_wall);
+        // ROS_INFO("Average loop time: %f", average_loop_time);
+        // ROS_INFO("Max loop time: %f", max_loop_time);
+        // ROS_INFO("Min loop time: %f", min_loop_time);
 
         sleep(5);
         //reset ros node
