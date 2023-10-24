@@ -4,6 +4,9 @@ This ROS1 (Noetic) node provide a implementation of a reactive robot wall follow
 ## Dependencies
 
 - [ros_noetic](http://wiki.ros.org/noetic/)
+- [Gazebo](http://wiki.ros.org/gazebo)
+- [Rviz](http://wiki.ros.org/rviz)
+- [Turtlebot3](https://github.com/ROBOTIS-GIT/turtlebot3)
 - [geometry_msgs](http://wiki.ros.org/geometry_msgs)
 - [std_msgs](http://wiki.ros.org/std_msgs)
 - [sensor_msgs](http://wiki.ros.org/sensor_mgs)
