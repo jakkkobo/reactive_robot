@@ -28,7 +28,7 @@ catkin_make
 
 ````
 
-Suposed struct of turtlebot3_control:
+### Files struture
 
 ├── CMakeLists.txt
 ├── cfg
