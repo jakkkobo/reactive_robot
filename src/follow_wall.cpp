@@ -39,6 +39,13 @@ double Kp_wall = 0.2; //0.2
 double Kp_linear = 0.3; //0.1
 double Kp_wall_linear = 0.05; //0.1
 
+int count = 0;
+
+double error_angle = 0.0;
+double distance_to_wall = 0.0;
+
+FILE *fp;
+
 
 //struct for the x and y data of the curve fit
 struct curve_fit_data
@@ -345,12 +352,39 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
     last_time = current_time;
     ROS_INFO("Loop time: %f", loop_time);
 
-    //calculate the average till the node is killed
-    static double average = 0.0;
-    static int count = 0;
-    average = (average*count + loop_time)/(count + 1);
+
+    //calculate the average, max and min error angle, distance to wall and loop time
+    static double average_error_angle = 0.0;
+    static double max_error_angle = 0.0;
+    static double min_error_angle = 0.0;
+    static double average_distance_to_wall = 0.0;
+    static double max_distance_to_wall = 0.0;
+    static double min_distance_to_wall = 0.0;
+    static double average_loop_time = 0.0;
+    static double max_loop_time = 0.0;
+    static double min_loop_time = 0.0;
+    
+    average_error_angle = (average_error_angle*count + abs(error_angle))/(count + 1);
+    average_distance_to_wall = (average_distance_to_wall*count + distance_to_wall)/(count + 1);
+    average_loop_time = (average_loop_time*count + loop_time)/(count + 1);
+    if(abs(error_angle) > max_error_angle)
+        max_error_angle = abs(error_angle);
+    if(abs(error_angle) < min_error_angle && abs(error_angle) != 0.000000)
+        min_error_angle = abs(error_angle);
+    if(distance_to_wall > max_distance_to_wall)
+        max_distance_to_wall = distance_to_wall;
+    if(distance_to_wall < min_distance_to_wall && distance_to_wall != 0.000000)
+        min_distance_to_wall = distance_to_wall;
+    if(loop_time > max_loop_time)
+        max_loop_time = loop_time;
+    if(loop_time < min_loop_time && loop_time != 0.000000)   
+        min_loop_time = loop_time;
     count++;
-    ROS_INFO("Average loop time: %f", average);
+
+    //save the error angle and distance to wall in a file
+    fp = fopen("/home/jacob/catkin_ws/src/turtlebot3_control/src/data.txt", "a");
+    fprintf(fp, "%f %f\n", error_angle, distance_to_wall);
+    fclose(fp);
     
 
     //check if stop state is true
@@ -474,14 +508,14 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
 
     //compute the middle line of the work_part part scan curve data
     curve_fit_data line_work_part = curve_fit(x_data_work_part, y_data_work_part);
-    double error_angle = compute_angle(line_work_part.x_data, line_work_part.y_data);
+    error_angle = compute_angle(line_work_part.x_data, line_work_part.y_data);
 
     //print the error angle
     ROS_INFO("Error angle: %f", error_angle);
 
 
     //compute the distance to the wall
-    double distance_to_wall = sqrt(pow(line_work_part.x_data[line_work_part.x_data.size()/2], 2) + pow(line_work_part.y_data[line_work_part.y_data.size()/2], 2));
+    distance_to_wall = sqrt(pow(line_work_part.x_data[line_work_part.x_data.size()/2], 2) + pow(line_work_part.y_data[line_work_part.y_data.size()/2], 2));
 
     //print the distance to the wall
     ROS_INFO("Distance to wall: %f", distance_to_wall);
@@ -493,7 +527,18 @@ void laserCallback(const sensor_msgs::LaserScan::ConstPtr& laser_msg)
         msg.linear.x = 0.0;
         msg.angular.z = 0.0;
         pub.publish(msg);
-        sleep(1);
+
+        ROS_INFO("Average error angle: %f", average_error_angle);
+        ROS_INFO("Max error angle: %f", max_error_angle);
+        ROS_INFO("Min error angle: %f", min_error_angle);
+        ROS_INFO("Average distance to wall: %f", average_distance_to_wall);
+        ROS_INFO("Max distance to wall: %f", max_distance_to_wall);
+        ROS_INFO("Min distance to wall: %f", min_distance_to_wall);
+        ROS_INFO("Average loop time: %f", average_loop_time);
+        ROS_INFO("Max loop time: %f", max_loop_time);
+        ROS_INFO("Min loop time: %f", min_loop_time);
+
+        sleep(5);
         //reset ros node
         system("rosnode kill /follow_wall");
         sleep(0.1);

@@ -12,6 +12,7 @@ import matplotlib.pyplot  as plt
 from matplotlib.animation import FuncAnimation
 
 
+
 class sentinel_graph_results:
 
     respawn = True
@@ -112,6 +113,12 @@ class sentinel_graph_results:
                     print("Waiting for respawn...")
                     self.update = False
 
+                x_coords, y_coords = zip(*self.robot_poses)
+                #save the graph coordinates in a file
+                with open('robot_graph_results.txt', 'w') as f:
+                    for x, y in zip(x_coords, y_coords):
+                        f.write("%s %s\n" % (x, y))
+        
 
                 #reset the graph
                 self.robot_poses = []
@@ -127,8 +134,7 @@ class sentinel_graph_results:
                 self.ax4.cla()
                 self.ax5.cla()
                 self.ax6.cla()
-                
-
+            
     
                 # print("Saving the graph...")
     
@@ -138,7 +144,7 @@ class sentinel_graph_results:
 
                 self.update = True
             
-            
+    
 
         
 
@@ -154,6 +160,8 @@ class sentinel_graph_results:
             self.ax.set_ylim(-4, 4)
             x_coords, y_coords = zip(*self.robot_poses)
             self.ax.plot(x_coords, y_coords, linestyle='-', label='robot_pose', color='blue')
+
+
 
             self.ax.set_xlabel('X (m)')
             self.ax.set_ylabel('Y (m)')
