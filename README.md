@@ -1,8 +1,9 @@
 ## Description
-This ros node provide a implementation of a reactive robot wall follower
+This ROS1 (Noetic) node provide a implementation of a reactive robot wall follower
 
 ## Dependencies
 
+- [ros_noetic](http://wiki.ros.org/noetic/)
 - [geometry_msgs](http://wiki.ros.org/geometry_msgs)
 - [std_msgs](http://wiki.ros.org/std_msgs)
 - [sensor_msgs](http://wiki.ros.org/sensor_mgs)
